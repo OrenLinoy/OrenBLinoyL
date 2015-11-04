@@ -6,6 +6,6 @@ import javax.servlet.http.*;
 public class Mtaproj102015Servlet extends HttpServlet {
 	public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
 		resp.setContentType("text/plain");
-		resp.getWriter().println("whatsup, world");
+		resp.getWriter().println("whatsup, linoy");
 	}
 }
