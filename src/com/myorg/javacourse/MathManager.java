@@ -5,7 +5,7 @@ public class MathManager {
 	double radius = 50;
 	final double pai = Math.PI;
 	double hypotenuse = 50;
-	double degree = Math.toRadians(30);
+	double degree = Math.sin(Math.toRadians(30));
 
 	public double q1() {
 		return radius*radius*pai;
