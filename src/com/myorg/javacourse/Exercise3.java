@@ -8,8 +8,6 @@ public class Exercise3 extends HttpServlet {
 		resp.setContentType("text/html");
 		MathManager mathManager = new MathManager();
 		String resultStr = mathManager.getResults();
-		resp.getWriter().println(resultStr);
-		
-		
+		resp.getWriter().println(resultStr);		
 	}
 }
