@@ -1,7 +1,9 @@
-package com.myorg.javacourse;
+package com.myorg.javacourse.model;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-
+/**
+ * This class get the stock details.
+ */
 public class Stock {
 	private String symbol;
 	private float ask, bid;
@@ -11,6 +13,16 @@ public class Stock {
 	private int stockQuantity;
 	public final static int BUY=0, SELL=1, REMOVE=2, HOLD=3; 
 	
+	public Stock(String symbol){
+        this.symbol=symbol;
+	}
+	public Stock(Stock stock){
+        this(stock.getSymbol());
+		this.ask = stock.getAsk();
+		this.bid = stock.getBid();
+		this.date = new Date();
+		this.date = stock.getDate();	
+	}	
 	public String getSymbol() {
 		return symbol;
 	}
@@ -35,13 +47,13 @@ public class Stock {
 	public Date getDate() {
 		return date;
 	}
+	/**
+	 * This method stores the stock details.
+	 * @return resultStr
+	 */
 	public String getHtmlDescription() {
 		
 		String resultStr = new String("<b>Stock symbol</b>:  " + getSymbol() + " <b>Ask</b>:  " + getAsk() + " <b>Bid</b>:  " + getBid() + " <b>Date</b>: " + sdf.format(getDate()) + "<br>");	
 		return resultStr;
 	}
-	
-	
-	
-
 }
