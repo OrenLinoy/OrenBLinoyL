@@ -5,33 +5,30 @@ import com.myorg.javacourse.model.*;
  * This class stores the stock's portfolio details.
  */
 public class PortfolioManager {
-	@SuppressWarnings("deprecation")
 	/**
 	 * This method sets the stock's portfolio details.
+	 * @return portfolio
 	 */
+	@SuppressWarnings("deprecation")
 	public Portfolio getPortfolio(){
 		
-		Portfolio portfolio= new Portfolio("Teva");
+		Portfolio myPortfolio= new Portfolio("Exercise 7 portfolio");
 		
-		Stock stock1 = new Stock("PIH");
-		stock1.setAsk((float)13.1);
-		stock1.setBid((float)12.4);
-		stock1.setDate(new Date("11/15/2014"));
+		Stock stock1 = new Stock("PIH",10.0f,8.5f,new Date("12/15/2014"));
+		myPortfolio.addStock(stock1);
 		
 		Stock stock2 = new Stock(stock1);
 		stock2.setSymbol("AAL");
-		stock2.setAsk((float)5.78);
-		stock2.setBid((float)5.5);
+		stock2.setAsk(30.0f);
+		stock2.setBid(25.5f);
+		myPortfolio.addStock(stock2);
 		
 		Stock stock3 = new Stock(stock1);
 		stock3.setSymbol("CAAS");
-		stock3.setAsk((float)32.2);
-		stock3.setBid((float)31.5);
+		stock3.setAsk(20.0f);
+		stock3.setBid(15.5f);
+		myPortfolio.addStock(stock3);
 		
-		portfolio.addStock(stock1);
-		portfolio.addStock(stock2);
-		portfolio.addStock(stock3);	
-		
-		return portfolio;
+		return myPortfolio;
 	}
 }

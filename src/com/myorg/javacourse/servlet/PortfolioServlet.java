@@ -14,20 +14,22 @@ public class PortfolioServlet extends HttpServlet {
 		resp.setContentType("text/html");
 		
 		PortfolioManager portfolioManager = new PortfolioManager();
-		Portfolio portfolio = portfolioManager.getPortfolio();	
-		resp.getWriter().println(portfolio.getHtmlString());
-		Portfolio portfolio2= new Portfolio(portfolio);
-		portfolio2.setTitle("Portfolio #2");
-		resp.getWriter().println(portfolio2.getHtmlString());
+		Portfolio myPortfolio = portfolioManager.getPortfolio();
+		myPortfolio.setBalance(10000);
+		resp.getWriter().println(myPortfolio.getHtmlString());
+
+		resp.getWriter().println("<b><h1><u>After buying stocks:</u></b></h1>");
+		myPortfolio.buyStock(myPortfolio.getStocks()[0], 20);
+		myPortfolio.buyStock(myPortfolio.getStocks()[1], 30);
+		myPortfolio.buyStock(myPortfolio.getStocks()[2], 40);
+		resp.getWriter().println(myPortfolio.getHtmlString());
 		
-		portfolio.removeFirstStock();
-		resp.getWriter().println("<b><h1>After removing the first stock from protfolio Teva: </h1></b>");			
-		resp.getWriter().println(portfolio.getHtmlString());
-		resp.getWriter().println(portfolio2.getHtmlString());
+		resp.getWriter().println("<b><h1><u>After selling stock 'AAL':</u></b></h1>");
+		myPortfolio.sellStock("AAL", -1);
+		resp.getWriter().println(myPortfolio.getHtmlString());
 		
-		portfolio2.getStocks()[2].setBid(55.55f);
-		resp.getWriter().println("<b><h1>After changing last stock's bid value of portfolio #2:</h1></b>");
-		resp.getWriter().println(portfolio.getHtmlString());
-		resp.getWriter().println(portfolio2.getHtmlString());
+		resp.getWriter().println("<b><h1><u>After remove stock 'CAAS':</u></b></h1>");
+		myPortfolio.removeStock("CAAS");
+		resp.getWriter().println(myPortfolio.getHtmlString());	
 	}
 }

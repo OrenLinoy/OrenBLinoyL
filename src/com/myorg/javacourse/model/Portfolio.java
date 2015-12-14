@@ -7,20 +7,18 @@ public class Portfolio {
 	public final static int MAX_PORTFOLIO_SIZE = 5;
 	private Stock[] stocks; 
 	private int portfolioSize=0;
+	private float balance;
+	public enum ALGO_RECOMMENDATION {BUY, SELL, REMOVE, HOLD};
 	
 	public Portfolio(String title){
 	   	stocks = new Stock[MAX_PORTFOLIO_SIZE];
-		this.title=title;
+		setTitle(title);
 	}
 	public Portfolio (Portfolio portfolio){	
 		this(portfolio.getTitle());
 		for(int i=0; i<portfolio.portfolioSize; i++){
 			this.addStock(new Stock(portfolio.getStocks()[i]));
 		}		
-	}
-	public void addStock(Stock stock){
-		if (portfolioSize<MAX_PORTFOLIO_SIZE)
-			stocks[portfolioSize++]= stock;	
 	}
 	public void setTitle(String title) {
 		this.title = title;
@@ -31,25 +29,164 @@ public class Portfolio {
 	public Stock[] getStocks() {
 		return stocks;
 	}
+	public int getPortfolioSize() {
+		return portfolioSize;
+	}
+	public float getBalance() {
+		return balance;
+	}
+	public void setBalance(float balance) {
+		this.balance = balance;
+	}
 	/**
-	 * This method removes the first stock from portfolio. 
+	 * this method add stock to the portfolio.
+	 * @param stock
 	 */
-	public void removeFirstStock(){		
-		for(int i=1; i<portfolioSize ; i++){
-			stocks[i-1]=stocks[i];	
+	public void addStock(Stock stock){
+		boolean flag=true;
+		for(int i=0;i<portfolioSize && flag;i++){
+			if(stocks[i].getSymbol().equals(stock.getSymbol())){
+				flag=false;
+			}
+		}		
+		if (portfolioSize<MAX_PORTFOLIO_SIZE && flag){
+			stock.setQuantity(0);
+			stocks[portfolioSize++]= stock;	
 		}
-		portfolioSize-=1;
+		else if (portfolioSize>=MAX_PORTFOLIO_SIZE)
+			System.out.println("Can’t add new stock, portfolio can have only "+ MAX_PORTFOLIO_SIZE + " stocks");
+		else
+			System.out.println("This stock is already exist in the portfolio.");
+	}
+	/**
+	 * This method updates the money available in the portfolio.
+	 * @param amount
+	 */
+	public void updateBalance(float amount){
+		if (amount+balance<0)
+			System.out.println("The balance can't be negative.");
+		else
+			balance+=amount;	
+	}	
+	/**
+	 * This method removes stock from portfolio. 
+	 * @param symbol
+	 *@return true/false if it successed or failed.
+	 */
+	public boolean removeStock(String symbol){	
+		for(int i=0; i<portfolioSize ; i++){
+			if (stocks[i].getSymbol().equals(symbol)){
+				if (sellStock(symbol,stocks[i].getQuantity())){
+					if (i+1==portfolioSize){
+						stocks[i]=null;
+					}
+					else{
+						for (int j=i; j<portfolioSize;j++){
+							stocks[j]=stocks[j+1];				
+						}
+					}
+					portfolioSize-=1;
+					return true;					
+				}
+			}					
+		}
+		return false;
+	}
+	/**
+	 * This method selling a stock from the portfolio.
+	 * @param 
+	 * @return true/false if it successed or failed.
+	 */
+	public boolean sellStock(String symbol, int quantity){
+		for(int i=0; i<portfolioSize && quantity>-2; i++){
+			if (stocks[i].getSymbol().equals(symbol)){
+				if(quantity==-1){
+					updateBalance(stocks[i].getBid()*stocks[i].getQuantity());
+					stocks[i].setQuantity(0);
+					return true;
+				}
+				else if (stocks[i].getQuantity()>=quantity){
+					updateBalance(stocks[i].getBid()*quantity);
+					stocks[i].setQuantity(stocks[i].getQuantity()-quantity);
+					return true;
+				}
+				else{
+					System.out.println("Not enough stocks to sell");
+					return false;
+				}
+			}	
+		}
+		return false;
+	}	
+	/**
+	 * This method buying stock and add it to the portfolio if the stock doesn't exist.
+	 * @param
+	 * @return true/false if it successed or failed
+	 */
+	public boolean buyStock(Stock stock, int quantity){
+		for (int i=0; i<portfolioSize && quantity>-2 && quantity!=0 ;i++){
+			if (stocks[i].getSymbol().equals(stock.getSymbol())){
+				if(quantity==-1 && (balance/stock.getAsk())>=1 && ((balance/stock.getAsk())*stock.getAsk())<=balance){
+					stocks[i].setQuantity(stock.getQuantity()+(int)(balance/stock.getAsk()));
+					updateBalance((balance%stock.getAsk())-balance);
+					return true;
+				}
+				else if ((balance/stock.getAsk())>=1 && (quantity*stock.getAsk())<=balance){
+					stocks[i].setQuantity(stock.getQuantity()+quantity);
+					updateBalance((balance-(quantity*stock.getAsk()))-balance);
+					return true;
+				}
+				else{
+					System.out.println("Not enough balance to complete purchase.");
+					return false;
+				}
+			}
+		}
+		if(quantity==-1 && balance/stock.getAsk()>=1 && (balance/stock.getAsk())*stock.getAsk()<=balance){
+			addStock(stock);
+			stock.setQuantity(stock.getQuantity()+(int)(balance/stock.getAsk()));
+			updateBalance((balance%stock.getAsk())-balance);
+			return true;
+		}
+		else if (balance/stock.getAsk()>=1 && quantity*stock.getAsk()<=balance){
+			addStock(stock);
+			stock.setQuantity(stock.getQuantity()+quantity);
+			updateBalance((balance-(quantity*stock.getAsk()))-balance);
+			return true;
+		}
+		else if (quantity>-2 && quantity!=0){
+			System.out.println("Not enough balance to complete purchase.");
+			return false;
+		}
+		return false;
+	}
+	/**
+	 * This method returns all stocks value in the portfolio.
+	 * @return stocksValue
+	 */
+	public double getStocksValue(){
+		double stocksValue=0;
+		for(int i=0; i<portfolioSize; i++){
+			stocksValue+=stocks[i].getAsk()*stocks[i].getQuantity();
+		}
+		return stocksValue;		
+	}
+	/**
+	 *This method returns the total value of the portfolio.
+	 */
+	public double getTotalValue(){
+		return getStocksValue()+getBalance();
 	}
 	/**
 	 * This method stores the details of the stocks.
 	 * @return set
 	 */
 	public String getHtmlString(){
-		String set= "<h1>" + getTitle() + "</h1>";
-				
-		for (int i=0; i<portfolioSize; i++){
-			set+= stocks[i].getHtmlDescription();
+		String set = ("<h1>" + getTitle()+  "</h1>");	
+		for(int i=0;i<portfolioSize;i++){
+			set =set + stocks[i].getHtmlDescription()+ "<br>";
 		}
-		return set;
+		set+="<b>Total portfolio value: </b>" + getTotalValue() + "<b>$ , Total stocks value: </b>" + getStocksValue()+ "<b>$ , Balance: </b>" + getBalance() + "$"; 
+		return set; 
 	}
 }
