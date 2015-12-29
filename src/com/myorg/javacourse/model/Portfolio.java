@@ -1,24 +1,38 @@
 package com.myorg.javacourse.model;
+
+import org.algo.model.PortfolioInterface;
+import org.algo.model.StockInterface;
 /**
  * This class get the stock's portfolio and the title of the portfolio.
  */
-public class Portfolio {
+public class Portfolio implements PortfolioInterface {
+	public final static int MAX_PORTFOLIO_SIZE = 100;
 	private String title;
-	public final static int MAX_PORTFOLIO_SIZE = 5;
-	private Stock[] stocks; 
+	private StockInterface[] stocks; 
 	private int portfolioSize=0;
 	private float balance;
 	public enum ALGO_RECOMMENDATION {BUY, SELL, REMOVE, HOLD};
 	
-	public Portfolio(String title){
-	   	stocks = new Stock[MAX_PORTFOLIO_SIZE];
-		setTitle(title);
+	public Portfolio(){
+		stocks = new Stock[MAX_PORTFOLIO_SIZE];	 
 	}
-	public Portfolio (Portfolio portfolio){	
-		this(portfolio.getTitle());
+	public Portfolio(Stock[] stockArray) {
+		this();
+		for (int i=0; i< stockArray.length; i++){
+			this.stocks[i]=stockArray[i];
+		}
+		portfolioSize=stockArray.length;
+	}
+	/*public Portfolio (Portfolio portfolio){	
+		this();
 		for(int i=0; i<portfolio.portfolioSize; i++){
 			this.addStock(new Stock(portfolio.getStocks()[i]));
-		}		
+		}	
+		
+	}*/
+	
+	public static int getMaxPortfolioSize() {
+		return MAX_PORTFOLIO_SIZE;
 	}
 	public void setTitle(String title) {
 		this.title = title;
@@ -27,7 +41,7 @@ public class Portfolio {
 		return title;
 	}
 	public Stock[] getStocks() {
-		return stocks;
+		return (Stock[]) stocks;
 	}
 	public int getPortfolioSize() {
 		return portfolioSize;
@@ -76,7 +90,7 @@ public class Portfolio {
 	public boolean removeStock(String symbol){	
 		for(int i=0; i<portfolioSize ; i++){
 			if (stocks[i].getSymbol().equals(symbol)){
-				if (sellStock(symbol,stocks[i].getQuantity())){
+				if (sellStock(symbol,((Stock) stocks[i]).getQuantity())){
 					if (i+1==portfolioSize){
 						stocks[i]=null;
 					}
@@ -101,13 +115,13 @@ public class Portfolio {
 		for(int i=0; i<portfolioSize && quantity>-2; i++){
 			if (stocks[i].getSymbol().equals(symbol)){
 				if(quantity==-1){
-					updateBalance(stocks[i].getBid()*stocks[i].getQuantity());
-					stocks[i].setQuantity(0);
+					updateBalance(stocks[i].getBid()*((Stock) stocks[i]).getQuantity());
+					((Stock) stocks[i]).setQuantity(0);
 					return true;
 				}
-				else if (stocks[i].getQuantity()>=quantity){
+				else if (((Stock) stocks[i]).getQuantity()>=quantity){
 					updateBalance(stocks[i].getBid()*quantity);
-					stocks[i].setQuantity(stocks[i].getQuantity()-quantity);
+					((Stock) stocks[i]).setQuantity(((Stock) stocks[i]).getQuantity()-quantity);
 					return true;
 				}
 				else{
@@ -127,12 +141,12 @@ public class Portfolio {
 		for (int i=0; i<portfolioSize && quantity>-2 && quantity!=0 ;i++){
 			if (stocks[i].getSymbol().equals(stock.getSymbol())){
 				if(quantity==-1 && (balance/stock.getAsk())>=1 && ((balance/stock.getAsk())*stock.getAsk())<=balance){
-					stocks[i].setQuantity(stock.getQuantity()+(int)(balance/stock.getAsk()));
+					((Stock) stocks[i]).setQuantity(stock.getQuantity()+(int)(balance/stock.getAsk()));
 					updateBalance((balance%stock.getAsk())-balance);
 					return true;
 				}
 				else if ((balance/stock.getAsk())>=1 && (quantity*stock.getAsk())<=balance){
-					stocks[i].setQuantity(stock.getQuantity()+quantity);
+					((Stock) stocks[i]).setQuantity(stock.getQuantity()+quantity);
 					updateBalance((balance-(quantity*stock.getAsk()))-balance);
 					return true;
 				}
@@ -167,7 +181,7 @@ public class Portfolio {
 	public double getStocksValue(){
 		double stocksValue=0;
 		for(int i=0; i<portfolioSize; i++){
-			stocksValue+=stocks[i].getAsk()*stocks[i].getQuantity();
+			stocksValue+=stocks[i].getBid()*((Stock) stocks[i]).getQuantity();
 		}
 		return stocksValue;		
 	}
@@ -184,9 +198,17 @@ public class Portfolio {
 	public String getHtmlString(){
 		String set = ("<h1>" + getTitle()+  "</h1>");	
 		for(int i=0;i<portfolioSize;i++){
-			set =set + stocks[i].getHtmlDescription()+ "<br>";
+			set =set + ((Stock) stocks[i]).getHtmlDescription()+ "<br>";
 		}
 		set+="<b>Total portfolio value: </b>" + getTotalValue() + "<b>$ , Total stocks value: </b>" + getStocksValue()+ "<b>$ , Balance: </b>" + getBalance() + "$"; 
 		return set; 
+	}
+	public StockInterface findStock(String symbol) {
+		for (int i=0; i<portfolioSize; i++){
+			if (getStocks()[i].getSymbol().equals(symbol)){
+				return getStocks()[i];
+			}
+		}
+		return null;
 	}
 }
